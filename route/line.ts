@@ -1,9 +1,11 @@
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
-import { Client } from "@line/bot-sdk";
+import { Client, Message } from "@line/bot-sdk";
+import { IgClient, initIgClient } from "../service/instagram_service";
 
 dotenv.config();
 
+initIgClient();
 const router = express.Router();
 
 // init LINE API client
