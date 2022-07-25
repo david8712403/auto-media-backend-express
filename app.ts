@@ -28,6 +28,9 @@ app.get("/", (req: Request, res: Response) => {
 
 // Routes
 app.use(lineRouter);
+
+//
+app.use((req, res, next) => (!req.route ? res.sendStatus(404) : next()));
 // Error middleware
 app.use(errorHandler);
 
