@@ -2,6 +2,9 @@ import { IgApiClient } from "instagram-private-api";
 import { IgSession } from "../model/document/igSession";
 import { IAutoMedia, SocialMediaPlatform } from "../model/myExpress";
 import bigint from "big-integer";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const saveSession = async (data: object) => {
   await IgSession.build({ data: data }).save();
@@ -82,7 +85,7 @@ const shortCodeToMediaId = (shortCode: string) => {
   return bigint(o, 64).toString(10);
 };
 
-const getIgMediaId = async (path: string): Promise<IAutoMedia> => {
+const getIgMediaDetail = async (path: string): Promise<IAutoMedia> => {
   let url = new URL(path);
   const mediaType = url.pathname.split("/")[1];
   if (!supportType.includes(mediaType)) throw new Error("Invlid IG URL");
@@ -108,4 +111,4 @@ const getIgMediaId = async (path: string): Promise<IAutoMedia> => {
   };
 };
 
-export { ig as IgClient, getIgMediaId, initIgClient };
+export { ig as IgClient, getIgMediaDetail, initIgClient };
