@@ -1,6 +1,9 @@
 {
   "scripts": {
-    "dev": "ts-node-dev app.ts"
+    "start": "node build/app.js",
+    "dev": "ts-node-dev app.ts",
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
   },
   "dependencies": {
     "@line/bot-sdk": "^7.5.0",

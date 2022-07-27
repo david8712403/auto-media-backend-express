@@ -12,3 +12,20 @@
 | `MONGODB_NAME`              | Mongodb name                          | `am-db`                      |
 | `TWITTER_API_KEY`           | Twitter API key                       | `RgcSi3...`                  |
 | `TWITTER_API_SECRET`        | Twitter API secret                    | `PSkXrb...`                  |
+
+# Docker Deploy
+
+## Build Docker Image
+
+```shell
+docker build -t auto-media-backend-express .
+```
+
+## Docker Run
+
+```shell
+docker run -p 3002:3000 \
+--restart=always --name=am-backend -d \
+--env-file=YOUR_ENV_PATH \
+auto-media-backend-express:{tag}
+```
