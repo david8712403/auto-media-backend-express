@@ -59,6 +59,8 @@ router.post(
                 "type",
                 "url",
                 "variants",
+                "width",
+                "height",
               ],
             }
           );
