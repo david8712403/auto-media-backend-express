@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { AutoMediaRequest, SocialMediaPlatform } from "../model/myExpress";
 import { LineUser } from "../model/document/lineUser";
+import { generateToken } from "../middleware/authHandler";
 import { MessageEvent, TextEventMessage } from "@line/bot-sdk";
-import { LineClient } from "../service/line_service";
+import { AutoMediaCommand, LineClient } from "../service/line_service";
 import { getIgMediaDetail } from "../service/instagram_service";
 import { getTwitterMediaDetail } from "../service/twitter_service";
 
@@ -11,19 +12,28 @@ const lineMessageHandler = async (req: Request, res: Response, next: any) => {
   // 不支援group/room, 傳送文字外的訊息也略過
   if (!(event.source.type === "user" && event.message.type === "text"))
     return res.sendStatus(200);
-  const user = await LineClient.getProfile(event.source.userId);
-  const userExists = await LineUser.findOne({ userId: user.userId });
-  if (!userExists) {
-    await LineUser.build({
-      userId: user.userId,
-      displayName: user.displayName,
-      language: user.language ?? null,
-      pictureUrl: user.pictureUrl,
-    }).save();
+  const lineUserProfile = await LineClient.getProfile(event.source.userId);
+  let user = await LineUser.findOne({ userId: lineUserProfile.userId });
+  if (!user) {
+    user = LineUser.build({
+      userId: lineUserProfile.userId,
+      displayName: lineUserProfile.displayName,
+      language: lineUserProfile.language ?? null,
+      pictureUrl: lineUserProfile.pictureUrl,
+    });
+    await user.save();
   }
-  console.log(user.userId, user.displayName);
+  console.log(lineUserProfile.userId, lineUserProfile.displayName);
 
   const message = event.message as TextEventMessage;
+
+  // 特殊指令，回傳API token
+  if (message.text === AutoMediaCommand.GET_TOKEN) {
+    const token = generateToken(user);
+    LineClient.replyMessage(event.replyToken, { type: "text", text: token });
+    return res.sendStatus(200);
+  }
+
   // Parse IG media id
   try {
     const igMediaDetail = await getIgMediaDetail(message.text);

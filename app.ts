@@ -4,6 +4,7 @@ import morgan from "morgan";
 import mongoose from "mongoose";
 import { json } from "body-parser";
 import { lineRouter } from "./route/line";
+import { amAppRouter } from "./route/amApp";
 import { errorHandler } from "./middleware/errorHandler";
 
 dotenv.config({ path: __dirname + "/.env" });
@@ -17,19 +18,16 @@ app.use((req, res, next) => {
   res.set("Cache-Control", "no-store");
   next();
 });
-app.use(
-  morgan("common", {
-    skip: (req, res) => req.originalUrl.startsWith("/swagger"), // ignore API document
-  })
-);
+app.use(morgan("common"));
 app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
 });
 
 // Routes
 app.use(lineRouter);
+app.use(amAppRouter);
 
-//
+// Ignore not found methods
 app.use((req, res, next) => (!req.route ? res.sendStatus(404) : next()));
 // Error middleware
 app.use(errorHandler);

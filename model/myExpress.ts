@@ -13,6 +13,7 @@ enum SocialMediaPlatform {
 
 interface AutoMediaRequest extends Request {
   autoMedia: IAutoMedia;
+  lineUseraId: string;
 }
 
 export { IAutoMedia, AutoMediaRequest, SocialMediaPlatform };

@@ -1,10 +1,4 @@
-import {
-  Client,
-  ClientConfig,
-  FlexBubble,
-  FlexMessage,
-  Message,
-} from "@line/bot-sdk";
+import { Client, ClientConfig, Message } from "@line/bot-sdk";
 import {
   ReelsMediaFeedResponseItem,
   MediaInfoResponseItemsItem,
@@ -140,6 +134,11 @@ const getTweetMessages = (data: TwitterResponse<findTweetById>): Message[] => {
   }
   return messages;
 };
+
+// AutoMedia Commands
+export enum AutoMediaCommand {
+  GET_TOKEN = "GET_TOKEN",
+}
 
 export {
   client as LineClient,
