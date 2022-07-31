@@ -10,8 +10,7 @@ import {
   getIgStoryMessages,
   getTweetMessages,
 } from "../service/line_service";
-import { TwitterClient } from "../service/twitter_service";
-import { findTweetById, TwitterResponse } from "twitter-api-sdk/dist/types";
+import { TwitterClient, twitterParams } from "../service/twitter_service";
 
 dotenv.config();
 
@@ -46,23 +45,9 @@ router.post(
           }
           break;
         case SocialMediaPlatform.twitter:
-          // const rawData = (await TwitterClient.tweets.findTweetById(
-          //   autoMedia.mediaId
-          // )) as TwitterResponse<findTweetById>;
           const rawData = await TwitterClient.tweets.findTweetById(
             autoMedia.mediaId,
-            {
-              expansions: ["attachments.media_keys"],
-              "media.fields": [
-                "media_key",
-                "preview_image_url",
-                "type",
-                "url",
-                "variants",
-                "width",
-                "height",
-              ],
-            }
+            twitterParams
           );
           messages = getTweetMessages(rawData) as Message[];
           break;

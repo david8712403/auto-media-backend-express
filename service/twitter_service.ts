@@ -2,11 +2,25 @@ import { IAutoMedia, SocialMediaPlatform } from "../model/myExpress";
 import { Client } from "twitter-api-sdk";
 
 import dotenv from "dotenv";
+import { findTweetById, TwitterParams } from "twitter-api-sdk/dist/types";
 
 dotenv.config();
 
 // Pass auth credentials to the library client
 const TwitterClient = new Client(process.env.TWITTER_API_TOKEN as string);
+
+export const twitterParams: TwitterParams<findTweetById> = {
+  expansions: ["attachments.media_keys"],
+  "media.fields": [
+    "media_key",
+    "preview_image_url",
+    "type",
+    "url",
+    "variants",
+    "width",
+    "height",
+  ],
+};
 
 const getTwitterMediaDetail = (path: string): IAutoMedia => {
   let url = new URL(path);
