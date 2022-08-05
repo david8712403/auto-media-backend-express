@@ -4,15 +4,16 @@ RUN mkdir -p /app
 WORKDIR /app
 COPY package*.json ./
 COPY . ./
-RUN npm install && npm install typescript -g
-RUN npm run build
+RUN yarn install && yarn global add typescript
+RUN yarn run build
 
 FROM node:16.3.0-alpine AS production
 RUN mkdir -p /app
 WORKDIR /app
 COPY package*.json ./
+COPY yarn.lock ./
 COPY --from=build /app/build ./
-RUN npm install
+RUN yarn
 ENV NODE_ENV=production
 EXPOSE 3000
 
