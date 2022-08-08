@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { json } from "body-parser";
 import { lineRouter } from "./route/line";
 import { amAppRouter } from "./route/amApp";
+import { mediaGetterRouter } from "./route/mediaGetter";
 import { errorHandler } from "./middleware/errorHandler";
 
 dotenv.config({ path: __dirname + "/.env" });
@@ -26,6 +27,7 @@ app.get("/", (req: Request, res: Response) => {
 // Routes
 app.use(lineRouter);
 app.use(amAppRouter);
+app.use(mediaGetterRouter);
 
 // Ignore not found methods
 app.use((req, res, next) => (!req.route ? res.sendStatus(404) : next()));
