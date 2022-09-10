@@ -1,7 +1,7 @@
 import axios from "axios";
 import { AutoMediaAppDoc } from "../model/document/amApp";
 
-enum WebhookStatus {
+export enum WebhookStatus {
   SUCCESS = "SUCCESS",
   FAILED = "FAILED",
 }

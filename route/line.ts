@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { sendWebhook } from "../service/webhook_service";
+import { sendWebhook, WebhookStatus } from "../service/webhook_service";
 import express, { Request, Response } from "express";
 import { lineMessageHandler } from "../middleware/lineHandler";
 import { IgClient, initIgClient } from "../service/instagram_service";
@@ -68,7 +68,12 @@ router.post(
         userId: (req as AutoMediaRequest).lineUseraId,
       });
       const result = await sendWebhook(appDoc, messages);
-      console.log(`${result} to send webhook messages -> ${appDoc?.webhook}`);
+      if (result === WebhookStatus.SUCCESS)
+        process.stdout.write("\x1b[32m");
+      else process.stdout.write("\x1b[31m");
+      console.log(
+        `${result} to send webhook messages -> ${appDoc?.webhook}\x1b[0m`
+      );
     } catch (error) {
       console.log(error);
     }
