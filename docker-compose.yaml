@@ -12,7 +12,7 @@ services:
   backend:
     image: auto-media-backend-express:latest
     env_file:
-      - .env
+      - .prod.env
     container_name: am-backend-express
     restart: always
     ports:
