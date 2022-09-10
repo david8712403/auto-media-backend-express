@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { sendWebhook } from "../service/webhook_service";
 import { v4 as uuidv4 } from "uuid";
 import { AutoMediaRequest, SocialMediaPlatform } from "../model/myExpress";
 import { LineUser } from "../model/document/lineUser";
@@ -62,12 +63,20 @@ const lineMessageHandler = async (req: Request, res: Response, next: any) => {
         text: JSON.stringify(doc, null, "  "),
       });
       return res.sendStatus(200);
+    case AutoMediaCommand.TEST_WEBHOOK:
+      const appDoc = await AutoMediaApp.findOne({ userId: user.userId });
+      LineClient.replyMessage(event.replyToken, {
+        type: "text",
+        text: (await sendWebhook(appDoc, {})) as string,
+      });
+      return res.sendStatus(200);
   }
 
   // Parse IG media id
   try {
     const igMediaDetail = await getIgMediaDetail(message.text);
     (req as AutoMediaRequest).autoMedia = igMediaDetail;
+    (req as AutoMediaRequest).lineUseraId = user.userId;
     console.log(message.text);
     return next();
   } catch (error) {
@@ -78,6 +87,7 @@ const lineMessageHandler = async (req: Request, res: Response, next: any) => {
   try {
     const twitterMediaDetail = getTwitterMediaDetail(message.text);
     (req as AutoMediaRequest).autoMedia = twitterMediaDetail;
+    (req as AutoMediaRequest).lineUseraId = user.userId;
     console.log(message.text);
     return next();
   } catch (error) {

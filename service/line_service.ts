@@ -140,6 +140,7 @@ export enum AutoMediaCommand {
   GET_TOKEN = "GET_TOKEN",
   SET_WEBHOOK = "SET_WEBHOOK",
   GET_WEBHOOK = "GET_WEBHOOK",
+  TEST_WEBHOOK = "TEST_WEBHOOK",
 }
 
 export {

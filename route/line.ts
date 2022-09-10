@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import { sendWebhook } from "../service/webhook_service";
 import express, { Request, Response } from "express";
 import { lineMessageHandler } from "../middleware/lineHandler";
 import { IgClient, initIgClient } from "../service/instagram_service";
@@ -11,6 +12,7 @@ import {
   getTweetMessages,
 } from "../service/line_service";
 import { TwitterClient, twitterParams } from "../service/twitter_service";
+import { AutoMediaApp } from "../model/document/amApp";
 
 dotenv.config();
 
@@ -60,6 +62,13 @@ router.post(
         if (i === 0) LineClient.replyMessage(event.replyToken, chunk);
         else LineClient.pushMessage(event.source.userId!, chunk);
       }
+
+      // Send Webhook
+      const appDoc = await AutoMediaApp.findOne({
+        userId: (req as AutoMediaRequest).lineUseraId,
+      });
+      const result = await sendWebhook(appDoc, messages);
+      console.log(`${result} to send webhook messages -> ${appDoc?.webhook}`);
     } catch (error) {
       console.log(error);
     }
