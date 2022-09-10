@@ -13,7 +13,8 @@ const saveSession = async (data: object) => {
 
 const sessionExists = async () => {
   const session = await IgSession.countDocuments();
-  return session;
+  console.log(`session count: ${session}`);
+  return session !== 0;
 };
 
 const loadSession = async () => {

@@ -3,11 +3,15 @@ import mongoose from "mongoose";
 interface IAutoMediaApp {
   name: string;
   webhook: string | null;
+  secret: string;
+  userId: string;
 }
 
 interface AutoMediaAppDoc extends mongoose.Document {
   name: string;
   webhook: string | null;
+  secret: string;
+  userId: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,6 +25,14 @@ const autoMediaAppSchema = new mongoose.Schema(
     webhook: {
       type: String,
       require: false,
+    },
+    secret: {
+      type: String,
+      require: true,
+    },
+    userId: {
+      type: String,
+      require: true,
     },
   },
   {

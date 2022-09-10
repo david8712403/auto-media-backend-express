@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { v4 as uuidv4 } from "uuid";
 import { AutoMediaRequest, SocialMediaPlatform } from "../model/myExpress";
 import { LineUser } from "../model/document/lineUser";
 import { generateToken } from "../middleware/authHandler";
@@ -6,6 +7,7 @@ import { MessageEvent, TextEventMessage } from "@line/bot-sdk";
 import { AutoMediaCommand, LineClient } from "../service/line_service";
 import { getIgMediaDetail } from "../service/instagram_service";
 import { getTwitterMediaDetail } from "../service/twitter_service";
+import { AutoMediaApp } from "../model/document/amApp";
 
 const lineMessageHandler = async (req: Request, res: Response, next: any) => {
   const event = req.body.events[0] as MessageEvent;
@@ -26,12 +28,40 @@ const lineMessageHandler = async (req: Request, res: Response, next: any) => {
   console.log(lineUserProfile.userId, lineUserProfile.displayName);
 
   const message = event.message as TextEventMessage;
-
+  const messages: string[] = message.text.split(" ");
   // 特殊指令，回傳API token
-  if (message.text === AutoMediaCommand.GET_TOKEN) {
-    const token = generateToken(user);
-    LineClient.replyMessage(event.replyToken, { type: "text", text: token });
-    return res.sendStatus(200);
+  switch (messages[0]) {
+    case AutoMediaCommand.GET_TOKEN:
+      const token = generateToken(user);
+      LineClient.replyMessage(event.replyToken, { type: "text", text: token });
+      return res.sendStatus(200);
+    case AutoMediaCommand.GET_WEBHOOK:
+      LineClient.replyMessage(event.replyToken, {
+        type: "text",
+        text: JSON.stringify(
+          await AutoMediaApp.findOne({ userId: user.userId }),
+          null,
+          "  "
+        ),
+      });
+      return res.sendStatus(200);
+    case AutoMediaCommand.SET_WEBHOOK:
+      const webhook = messages[1];
+      const doc = await AutoMediaApp.findOneAndUpdate(
+        { userId: user.userId },
+        {
+          userId: user.userId,
+          name: user.displayName,
+          webhook: webhook,
+          secret: uuidv4(),
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
+      LineClient.replyMessage(event.replyToken, {
+        type: "text",
+        text: JSON.stringify(doc, null, "  "),
+      });
+      return res.sendStatus(200);
   }
 
   // Parse IG media id

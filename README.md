@@ -30,3 +30,9 @@ docker run -p 3002:3000 \
 --env-file=YOUR_ENV_PATH \
 auto-media-backend-express:{tag}
 ```
+
+## Run with Docker Compose
+
+```shell
+docker-compose up
+```

@@ -138,6 +138,8 @@ const getTweetMessages = (data: TwitterResponse<findTweetById>): Message[] => {
 // AutoMedia Commands
 export enum AutoMediaCommand {
   GET_TOKEN = "GET_TOKEN",
+  SET_WEBHOOK = "SET_WEBHOOK",
+  GET_WEBHOOK = "GET_WEBHOOK",
 }
 
 export {

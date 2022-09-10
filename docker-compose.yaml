@@ -1,0 +1,24 @@
+services:
+  am-db:
+    container_name: am-db
+    image: mongo
+    ports:
+      - "27217:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=admin
+    volumes:
+      - ./data:/data/db
+    restart: always
+  backend:
+    image: auto-media-backend-express:latest
+    env_file:
+      - .env
+    container_name: am-backend-express
+    restart: always
+    ports:
+      - "3002:3002"
+    depends_on:
+      - am-db
+        #networks:
+        #mongo-compose-network:
+        #driver: bridge
