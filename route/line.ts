@@ -40,7 +40,7 @@ router.post(
             )[0];
             // 限時動態需要另外取得username
             const user = await IgClient.user.info(autoMedia.userId);
-            messages.push({ type: "text", text: user.username });
+            messages.push({ type: "text", text: `Instagram ${user.username}` });
             messages = [...messages, ...getIgStoryMessages(mediaData)];
           } else {
             // reel, post
@@ -48,7 +48,7 @@ router.post(
             const mediaData = rawData.items[0];
             messages.push({
               type: "text",
-              text: mediaData.caption.user.username,
+              text: `Instagram ${mediaData.caption.user.username}`,
             });
             messages = [
               ...messages,
@@ -64,7 +64,7 @@ router.post(
           let userName = "N/A";
           const users = rawData.includes?.users;
           if (users && users.length) userName = users[0].username;
-          messages.push({ type: "text", text: userName });
+          messages.push({ type: "text", text: `Twitter ${userName}` });
           messages = [...messages, ...(getTweetMessages(rawData) as Message[])];
           break;
       }
