@@ -10,7 +10,7 @@ dotenv.config();
 const TwitterClient = new Client(process.env.TWITTER_API_TOKEN as string);
 
 export const twitterParams: TwitterParams<findTweetById> = {
-  expansions: ["attachments.media_keys"],
+  expansions: ["attachments.media_keys", "author_id"],
   "media.fields": [
     "media_key",
     "preview_image_url",
@@ -20,6 +20,7 @@ export const twitterParams: TwitterParams<findTweetById> = {
     "width",
     "height",
   ],
+  "tweet.fields": ["entities"],
 };
 
 const getTwitterMediaDetail = (path: string): IAutoMedia => {

@@ -38,12 +38,22 @@ router.post(
             const mediaData = rawData.filter(
               (x) => x.pk === autoMedia.mediaId
             )[0];
-            messages = getIgStoryMessages(mediaData);
+            // 限時動態需要另外取得username
+            const user = await IgClient.user.info(autoMedia.userId);
+            messages.push({ type: "text", text: user.username });
+            messages = [...messages, ...getIgStoryMessages(mediaData)];
           } else {
             // reel, post
             const rawData = await IgClient.media.info(autoMedia.mediaId);
             const mediaData = rawData.items[0];
-            messages = getIgPostMessages(mediaData) as Message[];
+            messages.push({
+              type: "text",
+              text: mediaData.caption.user.username,
+            });
+            messages = [
+              ...messages,
+              ...(getIgPostMessages(mediaData) as Message[]),
+            ];
           }
           break;
         case SocialMediaPlatform.twitter:
@@ -51,7 +61,11 @@ router.post(
             autoMedia.mediaId,
             twitterParams
           );
-          messages = getTweetMessages(rawData) as Message[];
+          let userName = "N/A";
+          const users = rawData.includes?.users;
+          if (users && users.length) userName = users[0].username;
+          messages.push({ type: "text", text: userName });
+          messages = [...messages, ...(getTweetMessages(rawData) as Message[])];
           break;
       }
       if (!messages.length) return res.sendStatus(200);
@@ -68,8 +82,7 @@ router.post(
         userId: (req as AutoMediaRequest).lineUseraId,
       });
       const result = await sendWebhook(appDoc, messages);
-      if (result === WebhookStatus.SUCCESS)
-        process.stdout.write("\x1b[32m");
+      if (result === WebhookStatus.SUCCESS) process.stdout.write("\x1b[32m");
       else process.stdout.write("\x1b[31m");
       console.log(
         `${result} to send webhook messages -> ${appDoc?.webhook}\x1b[0m`
