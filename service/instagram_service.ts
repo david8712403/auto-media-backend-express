@@ -70,7 +70,7 @@ const igLogin = () => {
     .catch((error) => console.error(`IG service login FAILED: ${error}`));
 };
 
-const supportType = ["p", "post", "tv", "reel", "stories"];
+const supportType = ["p", "post", "tv", "reel", "stories", "s"];
 
 const shortCodeToMediaId = (shortCode: string) => {
   const lower = "abcdefghijklmnopqrstuvwxyz";
@@ -91,6 +91,10 @@ const getIgMediaDetail = async (path: string): Promise<IAutoMedia> => {
   const mediaType = url.pathname.split("/")[1];
   if (!supportType.includes(mediaType)) throw new Error("Invlid IG URL");
   let mediaId = url.pathname.split("/")[mediaType === "stories" ? 3 : 2];
+  // 精選限時動態
+  if (mediaType === "s")
+    mediaId = url.searchParams.get("story_media_id") as string;
+
   let userName = mediaType === "stories" ? url.pathname.split("/")[2] : null;
   let userId: string | null = null;
   if (

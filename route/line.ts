@@ -13,6 +13,7 @@ import {
 } from "../service/line_service";
 import { TwitterClient, twitterParams } from "../service/twitter_service";
 import { AutoMediaApp } from "../model/document/amApp";
+import { IgSession } from "../model/document/igSession";
 
 dotenv.config();
 
@@ -46,9 +47,14 @@ router.post(
             // reel, post
             const rawData = await IgClient.media.info(autoMedia.mediaId);
             const mediaData = rawData.items[0];
+            let userName = "N/A";
+            if (mediaData.user) userName = mediaData.user.username;
+            else if (mediaData.caption)
+              userName = mediaData.caption.user.username;
+
             messages.push({
               type: "text",
-              text: `Instagram ${mediaData.caption.user.username}`,
+              text: `Instagram ${userName}`,
             });
             messages = [
               ...messages,
@@ -87,7 +93,15 @@ router.post(
       console.log(
         `${result} to send webhook messages -> ${appDoc?.webhook}\x1b[0m`
       );
-    } catch (error) {
+    } catch (error: any) {
+      LineClient.pushMessage(process.env.ADMIN_LINE_ID as string, [
+        {
+          type: "text",
+          text: `${error}`,
+        },
+      ]);
+      // error IgLoginRequiredError: 經實驗，清除session重新登入即可
+      if (error.name === "IgLoginRequiredError") IgSession.deleteMany({});
       console.log(error);
     }
     return res.sendStatus(200);
