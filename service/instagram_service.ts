@@ -27,47 +27,25 @@ let ig = new IgApiClient();
 
 const initIgClient = async () => {
   ig.state.generateDevice(process.env.IG_USERNAME!);
-
   // This function executes after every request
   ig.request.end$.subscribe(async () => {
     const serialized = await ig.state.serialize();
     delete serialized.constants; // this deletes the version info, so you'll always use the version provided by the library
-    const afterDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    await IgSession.deleteMany({ createdAt: { $lt: afterDate } });
-    await saveSession(serialized);
+    saveSession(serialized);
   });
-  try {
-    const exists = await sessionExists();
-    if (exists) {
-      // import state accepts both a string as well as an object
-      // the string should be a JSON object
-      console.log("Login by IG session");
+  const sessionExist = await sessionExists();
+  if (sessionExist) {
+    // import state accepts both a string as well as an object
+    // the string should be a JSON object
+    const session = await loadSession();
 
-      await ig.state.deserialize(loadSession());
-      const { cookies, deviceString, deviceId, uuid, phoneId, adid, build } =
-        await loadSession();
-      ig.state.deviceString = deviceString;
-      ig.state.deviceId = deviceId;
-      ig.state.uuid = uuid;
-      ig.state.phoneId = phoneId;
-      ig.state.adid = adid;
-      ig.state.build = build;
-      await ig.state.deserializeCookieJar(cookies);
-    } else {
-      igLogin();
-    }
-  } catch (error) {
-    igLogin();
+    await ig.state.deserialize(session);
+    console.log("sign in by session");
+    return;
   }
-};
-
-const igLogin = () => {
-  ig.account
-    .login(process.env.IG_USERNAME!, process.env.IG_PASSWORD!)
-    .then((value) =>
-      console.log(`IG service login successful. (${value.username})`)
-    )
-    .catch((error) => console.error(`IG service login FAILED: ${error}`));
+  // This call will provoke request.end$ stream
+  await ig.account.login(process.env.IG_USERNAME!, process.env.IG_PASSWORD!);
+  console.log("sign in by username, password");
 };
 
 const supportType = ["p", "post", "tv", "reel", "stories", "s"];
