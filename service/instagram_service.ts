@@ -26,7 +26,8 @@ const loadSession = async () => {
 let ig = new IgApiClient();
 
 const initIgClient = async () => {
-  ig.state.generateDevice(process.env.IG_USERNAME!);
+  // 改用timestamp當作seed，也許會增加登入成功的機率？（之前都用username）
+  ig.state.generateDevice(Date.now().toString());
   // This function executes after every request
   ig.request.end$.subscribe(async () => {
     const serialized = await ig.state.serialize();
@@ -44,8 +45,14 @@ const initIgClient = async () => {
     return;
   }
   // This call will provoke request.end$ stream
-  await ig.account.login(process.env.IG_USERNAME!, process.env.IG_PASSWORD!);
-  console.log("sign in by username, password");
+  try {
+    console.log("sign in by username, password");
+    await ig.account.login(process.env.IG_USERNAME!, process.env.IG_PASSWORD!);
+  } catch (error) {
+    console.log(ig.state.checkpoint); // Checkpoint info here
+    await ig.challenge.auto(true); // Requesting sms-code or click "It was me" button
+    console.log(ig.state.checkpoint); // Challenge info here
+  }
 };
 
 const supportType = ["p", "post", "tv", "reel", "stories", "s"];
