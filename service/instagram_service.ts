@@ -85,8 +85,12 @@ const getIgMediaDetail = async (path: string): Promise<IAutoMedia> => {
 
   if (mediaId.length === 11) mediaId = shortCodeToMediaId(mediaId);
 
-  if (userName)
-    userId = await (await ig.user.searchExact(userName)).pk.toString();
+  if (userName) {
+    userId = (await ig.user.searchExact(userName)).pk.toString();
+    // 等待一下，否則跟下一個request間隔太短會被誤認為機器人帳號
+    await new Promise((res) => setTimeout(res, 5000));
+  }
+
   return {
     type: SocialMediaPlatform.instagram,
     userId: userId,
