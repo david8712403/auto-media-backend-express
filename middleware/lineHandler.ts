@@ -12,11 +12,13 @@ import { AutoMediaApp } from "../model/document/amApp";
 
 const lineMessageHandler = async (req: Request, res: Response, next: any) => {
   const event = req.body.events[0] as MessageEvent;
+  // 不支援group/room, 傳送文字外的訊息也略過
+  if (!(event.message.type === "text")) return res.sendStatus(200);
+
   const message = event.message as TextEventMessage;
   const messages: string[] = message.text.split(" ");
   let user = undefined;
-  // 不支援group/room, 傳送文字外的訊息也略過
-  if (!(event.message.type === "text")) return res.sendStatus(200);
+  
   if (event.source.type === "user") {
     const lineUserProfile = await LineClient.getProfile(event.source.userId);
     user = await LineUser.findOne({ userId: lineUserProfile.userId });
